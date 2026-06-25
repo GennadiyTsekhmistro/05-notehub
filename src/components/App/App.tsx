@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteNote, fetchNotes } from "../../services/noteService";
+import { fetchNotes } from "../../services/noteService";
 import type { Note } from "../../types/note";
 import css from "./App.module.css";
 import NoteList from "../NoteList/NoteList";
@@ -14,8 +14,6 @@ function App() {
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["notes", page, searchQuery],
@@ -35,32 +33,13 @@ function App() {
     setPage(1);
   }, 500);
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-    },
-  });
-
-  const handleDeleteNote = (id: string) => {
-    deleteMutation.mutate(id);
-  };
-
-
-  
-  
-
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
         <SearchBox onChange={handleSearchChange} />
 
         {totalPages > 1 && (
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-          />
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         )}
 
         <button
@@ -75,9 +54,7 @@ function App() {
       {isLoading && <p>Loading...</p>}
       {isError && <p>Failed to fetch notes</p>}
 
-      {notes.length > 0 && (
-        <NoteList notes={notes} onDelete={handleDeleteNote} />
-      )}
+      {notes.length > 0 && <NoteList notes={notes} />}
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
