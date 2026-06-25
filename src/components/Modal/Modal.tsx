@@ -8,19 +8,23 @@ interface ModalProps {
 }
 
 function Modal({ children, onClose }: ModalProps) {
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
+ useEffect(() => {
+  const originalOverflow = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
 
-    document.addEventListener("keydown", handleEscape);
+  const handleEscape = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      onClose();
+    }
+  };
 
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [onClose]);
+  document.addEventListener("keydown", handleEscape);
+
+  return () => {
+    document.body.style.overflow = originalOverflow;
+    document.removeEventListener("keydown", handleEscape);
+  };
+}, [onClose]);
 
   const handleBackdropClick = (
     event: React.MouseEvent<HTMLDivElement>

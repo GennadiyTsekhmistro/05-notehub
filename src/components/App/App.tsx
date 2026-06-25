@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
 import { fetchNotes } from "../../services/noteService";
 import type { Note } from "../../types/note";
@@ -23,6 +23,7 @@ function App() {
         perPage: 12,
         search: searchQuery,
       }),
+    placeholderData: keepPreviousData,
   });
 
   const notes: Note[] = data?.notes ?? [];
@@ -39,7 +40,11 @@ function App() {
         <SearchBox onChange={handleSearchChange} />
 
         {totalPages > 1 && (
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         )}
 
         <button
